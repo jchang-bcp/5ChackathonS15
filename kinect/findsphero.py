@@ -133,7 +133,8 @@ def onMouse(event,x,y,flags,param):
     """ the method called when the mouse is clicked """
     # if the left button was clicked
     if event==cv2.EVENT_LBUTTONDOWN:
-        print "x, y are", x, y, D.plane_depths[y,x], D.diffs[y,x]
+        #print "x, y are", x, y, D.plane_depths[y,x], D.diffs[y,x]
+        print "x, y are", x, y
         pictureCorners.append( (x,y) )
         if len(pictureCorners) == 4:
             updateCalibration()
@@ -187,7 +188,7 @@ def kinect_rgb_callback(data):
     try:
         color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH,config.GAME_HEIGHT))
     except NameError:
-        pass
+        cv2.imshow('im', color_image)
 
     center = findSphero(color_image)
 
@@ -196,9 +197,8 @@ def kinect_rgb_callback(data):
 
     D.pub.publish(str(center))
 
-    cv2.circle(color_image, center, 5, (255, 0, 0), 2)
+    #cv2.circle(color_image, center, 5, (255, 0, 0), 2)
 
-    #cv2.imshow('im', color_image)
 
     key_press = cv2.waitKey(5) & 0xff
     if key_press == 27 or key_press == ord('q'):
