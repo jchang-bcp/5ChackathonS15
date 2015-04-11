@@ -186,16 +186,16 @@ def kinect_rgb_callback(data):
     color_image = D.bridge.imgmsg_to_cv2(data, "bgr8")
 
     try:
-        color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH,config.GAME_HEIGHT))
+        color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH/5,config.GAME_HEIGHT/5))
     except NameError:
         cv2.imshow('im', color_image)
 
     center = findSphero(color_image)
 
-    if not center:
+    if center:
+        D.pub.publish(str(center))
+    else:
         print 'None'
-
-    D.pub.publish(str(center))
 
     #cv2.circle(color_image, center, 5, (255, 0, 0), 2)
 
