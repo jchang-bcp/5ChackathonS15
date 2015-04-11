@@ -192,18 +192,18 @@ def kinect_rgb_callback(data):
     try:
         color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH/D.processingScaleFactor,config.GAME_HEIGHT/D.processingScaleFactor))
     except NameError:
-        pass
+        cv2.imshow('im', color_image)
 
     center = findSphero(color_image)
     pubcenter = (center[0]*D.processingScaleFactor, center[1]*D.processingScaleFactor)
+    pubcenter = (pubcenter[0], pubcenter[1] + 80 + (1 - pubcenter[1])/config.GAME_HEIGHT)
 
     if center:
         D.pub.publish(str(pubcenter))
     else:
         print 'None'
 
-    cv2.circle(color_image, center, 5, (255, 0, 0), 2)
-    cv2.imshow('im', color_image)
+    #cv2.circle(color_image, center, 5, (255, 0, 0), 2)
 
 
     key_press = cv2.waitKey(5) & 0xff
