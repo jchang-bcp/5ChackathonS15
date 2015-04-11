@@ -1,4 +1,4 @@
-import pygame, player, bullet, random
+import pygame, player, bullet, keystone, random
 from pygame.locals import *
 
 def main():
@@ -13,6 +13,8 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
     pygame.mouse.set_visible(0)
+
+    ks = keystone.Keystone(WIDTH, HEIGHT)
 
     #Create The Backgound
     background = pygame.Surface(screen.get_size())
@@ -56,10 +58,10 @@ def main():
                 return
 
         background.fill((250, 250, 250))
-        pygame.draw.rect(background, (250, 0, 0), playerObj.getRect())
+        ks.polygon(background, (250, 0, 0), playerObj.getVertices())
 
         for bulletObj in bulletList:
-            pygame.draw.rect(background, (0, 0, 0), bulletObj.getRect())
+            ks.polygon(background, (0, 0, 0), bulletObj.getVertices())
         screen.blit(background, (0, 0))
         pygame.display.flip()
 
