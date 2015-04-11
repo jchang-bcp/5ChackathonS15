@@ -22,7 +22,7 @@ def wiimote_callback(data):
 
     deadband = 2
     tilt2spdfactor = 17 #34
-    buttonSpd = 90
+    buttonSpd = 120
 
 
     if data.buttons[3]:
@@ -61,7 +61,8 @@ def wiimote_callback(data):
 
     speed = math.sqrt(xspd*xspd + yspd*yspd)
     try:
-        if D.lastVel != (speed, angle):
+        if rospy.get_time() - D.last_sent_time > 1 or D.lastVel != (speed, angle):
+            D.last_sent_time = rospy.get_time()
             #if speed >= 250:
             #    D.robotPub.publish('robot.boost(10, '\
             #                       +str(int(angle))+', False)')
@@ -70,31 +71,74 @@ def wiimote_callback(data):
                                +str(int(speed))+', '\
                                +str(int(angle))+', 1, False)')
     except AttributeError:
-        pass
+        D.last_sent_time = rospy.get_time()
+
     D.lastVel = (speed, angle)
 
     if data.buttons[2]:
         if not D.just_changed_color:
+
+            col = getRGB(D.colorList[D.colorIndex])
+            D.colorIndex += 1
+            D.colorIndex %= 5
+
             D.robotPub.publish('robot.set_rgb_led(' \
-                    +str(int(random.uniform(0,256)))+', ' \
-                    +str(int(random.uniform(0,256)))+', ' \
-                    +str(int(random.uniform(0,256)))+', ' \
+                    +str(int(col[0]))+', ' \
+                    +str(int(col[1]))+', ' \
+                    +str(int(col[2]))+', ' \
                     +'False, False)')
+            D.colorPub.publish(True)
         D.just_changed_color = True
     else:
         D.just_changed_color = False
 
+
+    if data.buttons[4] or data.buttons[5]:
+        if not D.just_changed_heading:
+            if data.buttons[4]:
+                D.heading += 5
+            elif data.buttons[5]:
+                D.heading -= 5
+            D.heading += 360
+            D.heading %= 360
+            #D.robotPub.publish('robot.set_heading('+str(D.heading)+', False)')
+            D.robotPub.publish('robot.set_heading(10, False)')
+            D.robotPub.publish('robot.set_back_led(255, False)')
+        D.just_changed_heading = True
+    else:
+        if D.just_changed_heading:
+            D.robotPub.publish('robot.set_back_led(0, False)')
+        D.just_changed_heading = False
+
+def getRGB(color):
+    if color == "blue":
+        return (0,191,255)
+    if color == "green":
+        return (50,205,50)
+    if color == "yellow":
+        return (210,210,0)
+    if color == "purple":
+        return (160,32,240)
+    if color == "orange":
+        return (234,94,29)
+
 def main():
     rospy.init_node('wiimote2sphero')
+    D.heading = 0
+    D.just_changed_color = False
+    D.just_changed_heading = False
+    D.colorIndex = 0
+    D.colorList = ["blue", "green", "yellow", "purple", "orange"]
 
-    D.robotPub = rospy.Publisher('/sphero', std_msgs.msg.String, queue_size=1)
+    D.robotPub = rospy.Publisher('/sphero', std_msgs.msg.String, queue_size=4)
+    D.colorPub = rospy.Publisher('/sphero_change_color', std_msgs.msg.Bool, queue_size=10)
     D.robotPub.publish('robot.set_back_led(255, False)')
     print 'Ready'
     D.wiimoteSub = rospy.Subscriber('/joy', sensor_msgs.msg.Joy, wiimote_callback)
 
-    while True:
-        input()
-    #rospy.spin()
+    #while True:
+    #    input()
+    rospy.spin()
 
     print 'Shutting down'
 

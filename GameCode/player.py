@@ -2,13 +2,13 @@ import pygame
 import numpy as np
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, initx, inity, radius = 10, numSides = 10):
+    def __init__(self, initx, inity, radius = 80, numSides = 10):
         pygame.sprite.Sprite.__init__(self)
         self._xpos = initx
         self._ypos = inity
-        self._color = "red"
-        self._colorIndex = 2
-        self._colorList = ["blue", "green", "red", "purple", "orange"]
+        self._color = "blue"
+        self._colorIndex = 0
+        self._colorList = ["blue", "green", "yellow", "purple", "orange"]
         self._radius = radius
         self._numSides = numSides
         self.updateVertices()
@@ -23,8 +23,8 @@ class Player(pygame.sprite.Sprite):
         self.updateVertices()
 
     def updateVertices(self):
-        self._vertexList = [[self._xpos + 10*np.cos(i*2*np.pi/self._numSides),
-                             self._ypos + 10*np.sin(i*2*np.pi/self._numSides)] for i in range(0, self._numSides)]
+        self._vertexList = [[self._xpos + self._radius*np.cos(i*2*np.pi/self._numSides),
+                             self._ypos + self._radius*np.sin(i*2*np.pi/self._numSides)] for i in range(0, self._numSides)]
 
     def getVertices(self):
         return self._vertexList

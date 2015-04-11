@@ -11,11 +11,11 @@ class Bullet(pygame.sprite.Sprite):
         self._ypos = random.randint(0, Height)
 
         angle = random.random()*2*np.pi
-        speed = random.randint(70, 100)
+        speed = random.randint(40, 80)
         self._xvel = int(speed * np.cos(angle))
         self._yvel =  int(speed * np.sin(angle))
 
-        self._color = random.choice(["blue", "green", "red", "purple", "orange"])
+        self._color = random.choice(["blue", "green", "yellow", "purple", "orange"])
         self._radius = Radius
         self._numSides = numSides
         self.updateVertices()

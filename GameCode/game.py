@@ -4,6 +4,7 @@ from pygame.locals import *
 use_sphero = True
 
 player_position = (0,0)
+playerObj = player.Player(250, 250)
 
 if use_sphero:
     import rospy
@@ -11,12 +12,8 @@ if use_sphero:
     def spheroPosCallback(data):
         global player_position
         player_position = eval(data.data)
-        #player_position[1] = player_position[1]/1.8
-        #player_position = (player_position[0], player_position[1]/1.8)
-        print player_position
-
-
-
+    def spheroChangeColor(data):
+        playerObj.colorShift(1)
 
 
 def main():
@@ -34,6 +31,7 @@ def main():
     if use_sphero:
         rospy.init_node('sphero_game')
         rospy.Subscriber('/sphero_coordinates', std_msgs.msg.String, spheroPosCallback)
+        rospy.Subscriber('/sphero_change_color', std_msgs.msg.Bool, spheroChangeColor)
 
     pygame.init()
     screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
@@ -56,7 +54,6 @@ def main():
     pygame.display.flip()
 
     clock = pygame.time.Clock()
-    playerObj = player.Player(250, 250)
     bulletList = [bullet.Bullet(WIDTH,HEIGHT) for x in range (3)]
     score = 0
 
@@ -113,7 +110,7 @@ def main():
             if not use_sphero:
                 player_position = pygame.mouse.get_pos()
             playerObj.updatePos(player_position[0], player_position[1])
-            if random.random() < .09/(len(bulletList)+1) :
+            if random.random() < .03/(len(bulletList)+1) :
                 bulletList += [bullet.Bullet(WIDTH,HEIGHT)]
 
             for bulletObj in bulletList:
@@ -159,8 +156,8 @@ def getRGB(color):
         return (0,191,255)
     if color == "green":
         return (50,205,50)
-    if color == "red":
-        return (178,34,34)
+    if color == "yellow":
+        return (210,210,0)
     if color == "purple":
         return (160,32,240)
     if color == "orange":
