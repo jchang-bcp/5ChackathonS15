@@ -81,7 +81,8 @@ def main():
                     pygame.time.delay(3000)
                     return
 
-            background.fill((250, 250, 250))
+            background.fill((0, 0, 0))
+            ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])
             ks.polygon(background, (250, 0, 0), playerObj.getVertices())
 
             for bulletObj in bulletList:
