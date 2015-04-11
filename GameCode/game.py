@@ -1,6 +1,8 @@
 import pygame, player, bullet, keystone, random
 from pygame.locals import *
 
+
+
 def main():
     """this function is called when the program starts.
        it initializes everything it needs, then runs in
@@ -82,12 +84,24 @@ def main():
                     return
 
             background.fill((250, 250, 250))
-            ks.polygon(background, (250, 0, 0), playerObj.getVertices())
+            ks.polygon(background, getRGB(playerObj._color), playerObj.getVertices())
 
             for bulletObj in bulletList:
-                ks.polygon(background, (0, 0, 0), bulletObj.getVertices())
+                ks.polygon(background, getRGB(bulletObj._color), bulletObj.getVertices())
         screen.blit(background, (0, 0))
         pygame.display.flip()
+
+def getRGB(color):
+    if color == "blue":
+        return (0,191,255)
+    if color == "green":
+        return (34,139,34)
+    if color == "red":
+        return (178,34,34)
+    if color == "purple":
+        return (106,90,205)
+    if color == "orange":
+        return (250,128,114)
 
 #this calls the 'main' function when this script is executed
 if __name__ == '__main__': main()

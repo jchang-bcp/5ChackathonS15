@@ -41,7 +41,7 @@ class Keystone:
         dstPts = np.array([ (0,self._screenHeight), (self._screenWidth,self._screenHeight),
                             min(pt1,pt2), max(pt1,pt2)], dtype=np.float32)
 
-        self._transformation, _ = cv2.findHomography(srcPts, dstPts)
+    #    self._transformation, _ = cv2.findHomography(srcPts, dstPts)
 
     def transformPoint(self, pt):
         t = self._transformation.dot(np.array(pt+[1]))
