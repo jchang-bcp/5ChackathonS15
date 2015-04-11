@@ -8,13 +8,15 @@ def main():
     #Initialize Everything
     WIDTH = 1024
     HEIGHT = 768
+    SCREENWIDTH = WIDTH
+    SCREENHEIGHT = HEIGHT * 1.5
 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
     pygame.mouse.set_visible(1)
 
-    ks = keystone.Keystone(WIDTH, HEIGHT)
+    ks = keystone.Keystone(WIDTH, HEIGHT, SCREENWIDTH, SCREENHEIGHT)
 
     calibrationIndex = 0
     calibrationPoints = [(0, 0), (0, 0)]

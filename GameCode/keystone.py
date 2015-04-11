@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 
 class Keystone:
-    def __init__(self, w, h, H=np.eye(3)):
+    def __init__(self, w, h, sw, sh, H=np.eye(3)):
         self._screenWidth = w
         self._screenHeight = h
         self._transformation = H
