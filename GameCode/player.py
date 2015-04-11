@@ -5,17 +5,24 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self._xpos = initx
         self._ypos = inity
-        self._rect = pygame.Rect(self._xpos, self._ypos, 10, 10)
-        self.color = "red"
+        self.updateVertices()
 
     def updatePos(self, newx, newy):
         self._xpos = newx
         self._ypos = newy
-        self._rect.x = newx
-        self._rect.y = newy
+        self.updateVertices()
 
-    def getRect(self):
-        return self._rect
+    def updateVertices(self):
+        self._vertexList = [[self._xpos - 5, self._ypos - 5],
+                            [self._xpos + 5, self._ypos - 5],
+                            [self._xpos + 5, self._ypos + 5],
+                            [self._xpos - 5, self._ypos + 5]]
+
+    def getVertices(self):
+        return self._vertexList
+
+    def getCollider(self):
+        return pygame.Rect(self._xpos - 5, self._ypos - 5, 10, 10)
 
     def collide(self):
         print "Ow!"
