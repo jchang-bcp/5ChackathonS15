@@ -35,6 +35,7 @@ def main():
     playerObj = player.Player(250, 250)
     bulletList = [bullet.Bullet(WIDTH,HEIGHT) for x in range (3)]
     score = 0
+    health = 10
 
     while 1:
         deltaT = clock.tick(60)
@@ -74,9 +75,11 @@ def main():
             for bulletObj in bulletList:
                 bulletObj.updatePos(deltaT, pygame.time.get_ticks())
                 if bulletObj.checkForHit(playerObj):
+                    bulletList.remove(bulletObj)
                     if bulletObj._color == playerObj._color:
-                        bulletList.remove(bulletObj)
                         score += 1
+                    elif health > 0:
+                        health -= 1
                     else:
                         playerObj.collide()
                         if pygame.font:
@@ -96,13 +99,15 @@ def main():
 
             background.fill((0, 0, 0))
             ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])
-            ks.polygon(background, getRGB(playerObj._color), playerObj.getVertices())
+            #ks.polygon(background, getRGB(playerObj._color), playerObj.getVertices())
 
             for bulletObj in bulletList:
                 ks.polygon(background, getRGB(bulletObj._color), bulletObj.getVertices())
 
+            pygame.draw.rect(background, (0, 0, 0), pygame.Rect(10, HEIGHT-20, health*50, 30))
+
             #Render Score
-            text = font.render(str(score), 1, (10, 10, 10))
+            text = font.render(str(score), 10, (10, 10, 10))
             textpos = text.get_rect(centerx=background.get_width()/16*15, centery=background.get_height()/16*15)
             background.blit(text, textpos)
 
