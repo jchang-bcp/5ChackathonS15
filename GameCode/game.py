@@ -21,15 +21,17 @@ def main():
 
     clock = pygame.time.Clock()
     playerObj = player.Player()
+    bullet = bullet.bullet()
 
     while 1:
-        clock.tick(60)
+        deltaT = clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
 
         playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+        bullet.update(deltaT)
 
         background.fill((250, 250, 250))
         pygame.draw.rect(background, (0, 0, 0), playerObj.getRect())
