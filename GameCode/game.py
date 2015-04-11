@@ -45,6 +45,8 @@ def main():
     calibrationIndex = 0
     calibrationPoints = [(0, 0), (0, 0)]
 
+    waitForCalibration = True
+
     #Create The Backgound
     background = pygame.Surface(screen.get_size())
     background = background.convert()
@@ -70,7 +72,6 @@ def main():
                     calibrationIndex += 1
                     if calibrationIndex >= 2:
                         ks.setHomography(calibrationPoints[0], calibrationPoints[1])
-                        pygame.mouse.set_visible(0)
 
             if pygame.font:
                 font = pygame.font.Font(None, 36)
@@ -81,8 +82,28 @@ def main():
                 textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
                 background.blit(text, textpos)
 
+        elif waitForCalibration:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    return
+                if event.type == MOUSEBUTTONDOWN:
+                    waitForCalibration = False
+                    pygame.mouse.set_visible(0)
+
+            background.fill((0, 0, 0))
+            ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])
+
+            if pygame.font:
+                font = pygame.font.Font(None, 36)
+                text = font.render("Waiting for Kinect Calibration", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/8*7)
+                background.blit(text, textpos)
+                text = font.render("Click when Ready", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
+                background.blit(text, textpos)
+
         else:
-            
+
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
