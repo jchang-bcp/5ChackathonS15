@@ -1,17 +1,23 @@
 import pygame
 import random
+import numpy as np
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, Width, Height, Size=20):
+    def __init__(self, Width, Height, Radius = 10, numSides = 10):
         pygame.sprite.Sprite.__init__(self)
         self._screenWidth = Width
         self._screenHeight = Height
         self._xpos = random.randint(0, Width)
         self._ypos = random.randint(0, Height)
-        self._xvel = random.randint(60,100)*random.choice([-1,1])
-        self._yvel =  random.randint(60,100)*random.choice([-1,1])
-        self._size = Size
+
+        angle = random.random()*2*np.pi
+        speed = random.randint(70, 100)
+        self._xvel = int(speed * np.cos(angle))
+        self._yvel =  int(speed * np.sin(angle))
+
         self._color = random.choice(["blue", "green", "red", "purple", "orange"])
+        self._radius = Radius
+        self._numSides = numSides
         self.updateVertices()
 
     def updatePos(self, deltaT, time):
@@ -20,10 +26,8 @@ class Bullet(pygame.sprite.Sprite):
         self.updateVertices()
 
     def updateVertices(self):
-        self._vertexList = [[self._xpos - self._size, self._ypos - self._size],
-                            [self._xpos + self._size, self._ypos - self._size],
-                            [self._xpos + self._size, self._ypos + self._size],
-                            [self._xpos - self._size, self._ypos + self._size]]
+        self._vertexList = [[self._xpos + 10*np.cos(i*2*np.pi/self._numSides),
+                             self._ypos + 10*np.sin(i*2*np.pi/self._numSides)] for i in range(0, self._numSides)]
 
     def getVertices(self):
         return self._vertexList
@@ -32,5 +36,6 @@ class Bullet(pygame.sprite.Sprite):
         return (time/10000.0)**(1.0/2) + 1
 
     def checkForHit(self, target):
-        collisionRect = pygame.Rect(self._xpos - self._size, self._ypos - self._size, 2*self._size, 2*self._size)
-        return collisionRect.colliderect(target.getCollider())
+        xdiff = target.getPosition()[0] - self._xpos
+        ydiff = target.getPosition()[1] - self._ypos
+        return (np.sqrt(xdiff**2 + ydiff**2) <= self._radius + target.getRadius())
