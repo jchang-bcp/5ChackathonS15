@@ -5,6 +5,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self._xpos = initx
         self._ypos = inity
+        self._color = "red"
         self.updateVertices()
 
     def updatePos(self, newx, newy):

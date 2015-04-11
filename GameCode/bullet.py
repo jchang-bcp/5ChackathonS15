@@ -11,6 +11,7 @@ class Bullet(pygame.sprite.Sprite):
         self._xvel = random.randint(60,100)*random.choice([-1,1])
         self._yvel =  random.randint(60,100)*random.choice([-1,1])
         self._size = Size
+        self._color = random.choice(["blue", "green", "red", "purple", "orange"])
         self.updateVertices()
 
     def updatePos(self, deltaT, time):
