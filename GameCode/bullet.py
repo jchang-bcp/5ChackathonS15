@@ -23,6 +23,3 @@ class Bullet(pygame.sprite.Sprite):
 
     def checkForHit(self, target):
         return self._rect.colliderect(target.getRect())
-
-    def deltaT():
-        return 1
