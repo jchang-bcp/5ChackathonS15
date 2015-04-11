@@ -32,5 +32,5 @@ class Keystone:
 
         return [newtl, newtr, newbl, newbr]
 
-    def polygon(surface, color, pointlist):
+    def polygon(self, surface, color, pointlist):
         pygame.draw.polygon(surface, color, pointlist)
