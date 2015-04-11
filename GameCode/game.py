@@ -6,8 +6,11 @@ def main():
        it initializes everything it needs, then runs in
        a loop until the function returns."""
     #Initialize Everything
+    WIDTH = 500
+    HEIGHT = 500
+
     pygame.init()
-    screen = pygame.display.set_mode((500, 500))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
     pygame.mouse.set_visible(0)
 
@@ -21,7 +24,7 @@ def main():
 
     clock = pygame.time.Clock()
     playerObj = player.Player(250, 250)
-    bulletObj = bullet.Bullet()
+    bulletList = [bullet.Bullet(WIDTH,HEIGHT) for x in range (3)]
 
     while 1:
         deltaT = clock.tick(60)
@@ -31,16 +34,19 @@ def main():
                 return
 
         playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-        bulletObj.updatePos(deltaT)
 
-        if bulletObj.checkForHit(playerObj):
-            playerObj.collide()
-            print "GAME OVER BRAH"
-            return
+        for bulletObj in bulletList:
+            bulletObj.updatePos(deltaT)
+            if bulletObj.checkForHit(playerObj):
+                playerObj.collide()
+                print "GAME OVER BRAH"
+                return
 
         background.fill((250, 250, 250))
         pygame.draw.rect(background, (250, 0, 0), playerObj.getRect())
-        pygame.draw.rect(background, (0, 0, 0), bulletObj.getRect())
+
+        for bulletObj in bulletList:
+            pygame.draw.rect(background, (0, 0, 0), bulletObj.getRect())
         screen.blit(background, (0, 0))
         pygame.display.flip()
 
