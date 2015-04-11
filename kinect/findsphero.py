@@ -1,15 +1,20 @@
 #!/usr/bin/env python2
 # Alex Ozdemir <aozdemir@hmc.edu>
 
+import rospy
+import std_msgs.msg
+import sensor_msgs.msg
 import numpy as np
 import cv2
 import math
 import Geometry
 import Vector
+import cv_bridge
 
-a = np.loadtxt('f.txt')
+class Data:
+    pass
 
-# a = cv2.GaussianBlur(a, ksize=(7, 7), sigmaX=2)
+D = Data()
 
 class Calibration:
 	pass
@@ -25,72 +30,11 @@ def kinect_to_cartesian(kinect_pos, calib):
 	left_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
 	right_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
 
-# a = a[100:-100, 100:-100]
-# cv2.imwrite('f.jpg', a.astype(np.uint8))
-
-
-# def xang(x):
-# 	return math.radians(-23.5 + x*57./639)
-# def yang(y):
-# 	return math.radians(21.5 - y*43./480)
-
-# x = []
-# y = []
-# z = []
-# for xi in xrange(a.shape[1]):
-# 	for yi in xrange(a.shape[0]):
-# 		zi = a[yi,xi]
-# 		x.append(xi)
-# 		y.append(yi)
-# 		z.append(zi)
-# 		# x.append(math.sin(xang(xi))*math.cos(yang(yi))*zi)
-# 		# y.append(math.cos(xang(xi))*math.sin(yang(yi))*zi)
-# 		# z.append(math.cos(xang(xi))*math.cos(yang(yi))*zi)
-
-
-# xa = np.array(x)
-# ya = np.array(y)
-# za = np.array(z)
-
-# res = np.linalg.lstsq(np.vstack([xa, ya, np.ones(len(xa))]).T, za)
-# xc, yc, cc = res[0]
-
-# d = np.array(a)
-# for xi in xrange(a.shape[1]):
-# 	for yi in xrange(a.shape[0]):
-# 		d[yi,xi] = 255 - abs(d[yi,xi] - (cc + yc * yi + xc * xi))*50
-
-
-# d = d.astype(np.uint8)
-# def f(y, x):
-# 	print 'plane: %.2f, img: %.2f, res: %.2f' % (xc * x + yc * y + cc, a[y,x], d[y,x])
-
-
-
-#function to get RGB image from kinect
-# def get_video():
-#     array,_ = freenect.sync_get_video()
-#     array = cv2.cvtColor(array,cv2.COLOR_RGB2BGR)
-#     return array
-
-# while 1:
-#     #get a frame from RGB camera
-#     frame = get_video()
-
-#     #display RGB image
-#     cv2.imshow('RGB image',frame)
-
-#     # quit program when 'esc' key is pressed
-#     k = cv2.waitKey(5) & 0xFF
-#     if k == 27:	
-#         break
-# cv2.destroyAllWindows()
-
 def findSphero(img):
 	''' Given a color img, finds the finds the sphero.
 	Returns the center of the sphero as an x,y coordinate pair.
 	Returns None if no sphero is found'''
-	gray = cv2.cvtColor(co, cv2.COLOR_RGB2GRAY)
+	gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
 	thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
 
@@ -135,17 +79,36 @@ def centerContour(contour):
 	xc_1 = x_m + uc
 	yc_1 = y_m + vc
 	
-	print (int(xc_1), int(yc_1))
+	#print (int(xc_1), int(yc_1))
 	return (int(xc_1), int(yc_1))
 
-co = cv2.imread('f.png',cv2.IMREAD_COLOR)
+# a = a[100:-100, 100:-100]
 
-center = findSphero(co)
+def kinect_callback(data):
+    image = D.bridge.imgmsg_to_cv2(data, "bgr8")
+    color_image = image.astype(np.uint8)
 
-cv2.circle(co, center, 5, (255, 0, 0), 2)
+    center = findSphero(color_image)
 
-cv2.imshow('im', co)
+    D.pub.publish(str(center))
 
-cv2.waitKey(10)
+    cv2.circle(color_image, center, 5, (255, 0, 0), 2)
+    cv2.imshow('im', image)
 
-# print circles
+    key_press = cv2.waitKey(5) & 0xff
+    if key_press == 27 or key_press == ord('q'):
+        rospy.signal_shutdown(0)
+
+def main():
+    rospy.init_node('sphero_finder')
+
+    D.bridge = cv_bridge.CvBridge()
+
+    D.pub = rospy.Publisher('/sphero_coordinates', std_msgs.msg.String, queue_size=1)
+    D.kinectSub = rospy.Subscriber('/camera/rgb/image_color', sensor_msgs.msg.Image, kinect_callback)
+
+    rospy.spin()
+
+if __name__ == '__main__':
+    main()
+
