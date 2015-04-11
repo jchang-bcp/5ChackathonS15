@@ -9,8 +9,12 @@ class Bullet(pygame.sprite.Sprite):
         self._screenHeight = Height
         self._xpos = random.randint(0, Width)
         self._ypos = random.randint(0, Height)
-        self._xvel = random.randint(40,50)*random.choice([-1,1])
-        self._yvel =  random.randint(40,50)*random.choice([-1,1])
+
+        angle = random.random()*2*np.pi
+        speed = random.randint(70, 100)
+        self._xvel = int(speed * np.cos(angle))
+        self._yvel =  int(speed * np.sin(angle))
+
         self._color = random.choice(["blue", "green", "red", "purple", "orange"])
         self._radius = Radius
         self._numSides = numSides
