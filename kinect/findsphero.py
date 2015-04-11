@@ -10,25 +10,51 @@ import math
 import Geometry
 import Vector
 import cv_bridge
+import sys
+
+sys.path.append('..')
+import config
 
 class Data:
     pass
 
 D = Data()
 
-class Calibration:
-	pass
-calibration = Calibration()
-calibration.ul= (100, 100)
-calibration.ll = (400, 160)
-calibration.ur = (100, 500)
-calibration.lr = (400, 440)
+pictureCorners = []
 
 def kinect_to_cartesian(kinect_pos, calib):
-	top_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
-	bot_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
-	left_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
-	right_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
+    top_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
+    bot_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
+    left_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
+    right_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
+
+    h = []
+    #cv2.findHomography(
+
+def updateCalibration():
+    global pictureCorners
+    global H
+
+    largeXs = set(sorted(pictureCorners, key=lambda x: -x[0])[0:2])
+    smallXs = set(sorted(pictureCorners, key=lambda x:  x[0])[0:2])
+    largeYs = set(sorted(pictureCorners, key=lambda x: -x[1])[0:2])
+    smallYs = set(sorted(pictureCorners, key=lambda x:  x[1])[0:2])
+
+    srcPts = np.array([(smallXs & smallYs).pop(),
+                       (smallXs & largeYs).pop(),
+                       (largeXs & smallYs).pop(),
+                       (largeXs & largeYs).pop()], dtype=np.float32)
+
+    dstPts = np.array([(                0,                  0),
+                       (                0, config.GAME_HEIGHT),
+                       (config.GAME_WIDTH,                  0),
+                       (config.GAME_WIDTH, config.GAME_HEIGHT)], dtype=np.float32)
+
+    #print srcPts, '->', dstPts
+
+    H, _ = cv2.findHomography(srcPts, dstPts)
+
+    print H
 
 def findSphero(img):
 	''' Given a color img, finds the finds the sphero.
@@ -74,7 +100,10 @@ def centerContour(contour):
 	# Solving the linear system
 	A = np.array([ [ Suu, Suv ], [Suv, Svv]])
 	B = np.array([ Suuu + Suvv, Svvv + Suuv ])/2.0
-	uc, vc = np.linalg.solve(A, B)
+        try:
+            uc, vc = np.linalg.solve(A, B)
+        except np.LinAlgError:
+            return (0,0)
 
 	xc_1 = x_m + uc
 	yc_1 = y_m + vc
@@ -85,22 +114,43 @@ def centerContour(contour):
 # a = a[100:-100, 100:-100]
 
 def kinect_callback(data):
-    image = D.bridge.imgmsg_to_cv2(data, "bgr8")
-    color_image = image.astype(np.uint8)
+    color_image = D.bridge.imgmsg_to_cv2(data, "bgr8")
 
     center = findSphero(color_image)
+
+    if not center:
+        print 'None'
 
     D.pub.publish(str(center))
 
     cv2.circle(color_image, center, 5, (255, 0, 0), 2)
+
+    
+    try:
+        color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH,config.GAME_HEIGHT))
+    except NameError:
+        pass
+
     cv2.imshow('im', color_image)
 
     key_press = cv2.waitKey(5) & 0xff
     if key_press == 27 or key_press == ord('q'):
         rospy.signal_shutdown(0)
 
+def onMouse(event,x,y,flags,param):
+    """ the method called when the mouse is clicked """
+    # if the left button was clicked
+    if event==cv2.EVENT_LBUTTONDOWN: 
+        print "x, y are", x, y
+        pictureCorners.append( (x,y) )
+        if len(pictureCorners) == 4:
+            updateCalibration()
+
 def main():
     rospy.init_node('sphero_finder')
+
+    cv2.namedWindow('im')
+    cv2.setMouseCallback('im', onMouse, None)
 
     D.bridge = cv_bridge.CvBridge()
 
