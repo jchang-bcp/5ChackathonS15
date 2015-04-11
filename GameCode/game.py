@@ -8,15 +8,17 @@ def main():
        it initializes everything it needs, then runs in
        a loop until the function returns."""
     #Initialize Everything
-    WIDTH = 500
-    HEIGHT = 500
+    WIDTH = 1024
+    HEIGHT = 768
+    SCREENWIDTH = WIDTH
+    SCREENHEIGHT = HEIGHT * 1.5
 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
     pygame.mouse.set_visible(1)
 
-    ks = keystone.Keystone(WIDTH, HEIGHT)
+    ks = keystone.Keystone(WIDTH, HEIGHT, SCREENWIDTH, SCREENHEIGHT)
 
     calibrationIndex = 0
     calibrationPoints = [(0, 0), (0, 0)]
@@ -80,11 +82,11 @@ def main():
                         screen.blit(background, (0, 0))
                         pygame.display.flip()
                     print "GAME OVER BRAH"
-                    pygame.time.delay(3000)
-                    return
-
-            background.fill((250, 250, 250))
-            ks.polygon(background, getRGB(playerObj._color), playerObj.getVertices())
+                    #pygame.time.delay(3000)
+                    #return
+            background.fill((0, 0, 0))
+            ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])
+            ks.polygon(background, (250, 0, 0), playerObj.getVertices())
 
             for bulletObj in bulletList:
                 ks.polygon(background, getRGB(bulletObj._color), bulletObj.getVertices())
