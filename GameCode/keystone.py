@@ -18,7 +18,6 @@ class Keystone:
 
     def transformPoint(self, pt):
         t = self._transformation.dot(np.array(pt+[1]))
-        print 't is', t
         return [ t[0]/t[2], t[1]/t[2] ]
 
     def polygon(self, surface, color, pointlist):
