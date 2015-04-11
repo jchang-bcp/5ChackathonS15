@@ -1,4 +1,4 @@
-import pygame, player
+import pygame, player, bullet
 from pygame.locals import *
 
 def main():
@@ -20,19 +20,27 @@ def main():
     pygame.display.flip()
 
     clock = pygame.time.Clock()
-    playerObj = player.Player()
+    playerObj = player.Player(250, 250)
+    bulletObj = bullet.Bullet()
 
     while 1:
-        clock.tick(60)
+        deltaT = clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
 
         playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+        bulletObj.updatePos(deltaT)
+
+        if bulletObj.checkForHit(playerObj):
+            playerObj.collide()
+            print "GAME OVER BRAH"
+            return
 
         background.fill((250, 250, 250))
-        pygame.draw.rect(background, (0, 0, 0), playerObj.getRect())
+        pygame.draw.rect(background, (250, 0, 0), playerObj.getRect())
+        pygame.draw.rect(background, (0, 0, 0), bulletObj.getRect())
         screen.blit(background, (0, 0))
         pygame.display.flip()
 

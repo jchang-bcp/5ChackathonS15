@@ -1,10 +1,10 @@
 import pygame
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, initx, inity):
         pygame.sprite.Sprite.__init__(self)
-        self._xpos = 0
-        self._ypos = 0
+        self._xpos = initx
+        self._ypos = inity
         self._rect = pygame.Rect(self._xpos, self._ypos, 10, 10)
 
     def updatePos(self, newx, newy):
