@@ -2,7 +2,7 @@
 """
 This simple example is used for the line-by-line tutorial
 that comes with pygame. It is based on a 'popular' web banner.
-Note there are comments here, but for the full explanation, 
+Note there are comments here, but for the full explanation,
 follow along in the tutorial.
 """
 
@@ -17,7 +17,7 @@ if not pygame.mixer: print 'Warning, sound disabled'
 
 #functions to create our resources
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('/home/jonathan/Pictures', name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error, message:
@@ -35,7 +35,7 @@ def load_sound(name):
         def play(self): pass
     if not pygame.mixer or not pygame.mixer.get_init():
         return NoneSound()
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('~/Music', name)
     try:
         sound = pygame.mixer.Sound(fullname)
     except pygame.error, message:
@@ -125,7 +125,7 @@ def main():
        a loop until the function returns."""
 #Initialize Everything
     pygame.init()
-    screen = pygame.display.set_mode((468, 60))
+    screen = pygame.display.set_mode((468, 200))
     pygame.display.set_caption('Monkey Fever')
     pygame.mouse.set_visible(0)
 

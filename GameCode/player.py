@@ -1,6 +1,6 @@
 import pygame
 
-class player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self._xpos = 0
@@ -12,6 +12,9 @@ class player(pygame.sprite.Sprite):
         self._ypos = newy
         self._rect.x = newx
         self._rect.y = newy
+
+    def getRect(self):
+        return self._rect
 
     def collide(self):
         print "Ow!"
