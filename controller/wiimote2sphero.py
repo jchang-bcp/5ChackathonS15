@@ -5,6 +5,9 @@ import sensor_msgs.msg
 import geometry_msgs.msg
 import std_msgs.msg
 import random
+from sphero_driver import sphero_driver
+import sys
+import math
 
 class Data:
     pass
@@ -51,52 +54,39 @@ def wiimote_callback(data):
         if data.buttons[9]:
             yspd += -200
 
+    angle = math.atan2(xspd, yspd) * 180/math.pi
+    angle = (angle + 360) % 360 # normalize so it's positive
 
-    spheroMsg = geometry_msgs.msg.Twist()
-    spheroMsg.linear.x = xspd
-    spheroMsg.linear.y = yspd
+    speed = math.sqrt(xspd*xspd + yspd*yspd)
     try:
-        if D.lastMsg.linear.x != spheroMsg.linear.x or D.lastMsg.linear.y != spheroMsg.linear.y:
-            print xspd, yspd
-            D.spheroMovPub.publish(spheroMsg)
-            D.backLED.publish(255)
-            D.disableStabilization.publish(False)
+        if D.lastVel != (speed, angle):
+            print speed, angle
+            D.robotPub.publish('robot.roll('+str(int(speed))+','+str(int(angle))+', 1, False)')
     except AttributeError:
         pass
-    D.lastMsg = spheroMsg
+    D.lastVel = (speed, angle)
 
     if data.buttons[2]:
         if not D.just_changed_color:
-            D.just_changed_color = True
-            #D.spheroColPub.publish(std_msgs.msg.ColorRGBA
-            #D.spheroColPub.publish(r=random.random(0,256), g=random.random(0,256), b=random.random(0,256), a=255)
-            colMsg = std_msgs.msg.ColorRGBA()
-            print '--------------------------------------------------------------------------------'
-            colMsg.r = random.uniform(0,1)
-            colMsg.g = random.uniform(0,1)
-            colMsg.b = random.uniform(0,1)
-            print colMsg
-            print '--------------------------------------------------------------------------------'
-            D.spheroColPub.publish(colMsg)
+            D.robotPub.publish('robot.set_rgb_led' \
+                    +str(int(random.uniform(0,256)))+',' \
+                    +str(int(random.uniform(0,256)))+',' \
+                    +str(int(random.uniform(0,256)))+',' \
+                    +'False, False)')
     else:
         D.just_changed_color = False
 
 def main():
     rospy.init_node('wiimote2sphero')
 
-    rospy.set_param('/sphero/cmd_vel_timeout', 10)
-
+    D.robotPub = rospy.Publisher('/sphero', std_msgs.msg.String, queue_size=1)
+    D.robotPub.publish('robot.set_back_led(255, False)')
+    print 'Ready'
     D.wiimoteSub = rospy.Subscriber('/joy', sensor_msgs.msg.Joy, wiimote_callback)
 
-    D.spheroMovPub = rospy.Publisher('/cmd_vel', geometry_msgs.msg.Twist, queue_size=1)
-
-    D.spheroColPub = rospy.Publisher('/set_color', std_msgs.msg.ColorRGBA, queue_size=1)
-
-    D.backLED = rospy.Publisher('/set_back_led', std_msgs.msg.Float32, queue_size=1)
-    #D.spheroBackPub
-    #/set_back_led
-
     rospy.spin()
+
+    print 'Shutting down'
 
 
 if __name__ == '__main__':
