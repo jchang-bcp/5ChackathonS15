@@ -11,6 +11,7 @@ class Bullet(pygame.sprite.Sprite):
         self._xvel = random.randint(40,50)*random.choice([-1,1])
         self._yvel =  random.randint(40,50)*random.choice([-1,1])
         self._rect = pygame.Rect(self._xpos, self._ypos, 10, 10)
+        self._color = random.choice(['red', 'blue', 'green', 'purple','yellow','orange'])
 
     def updatePos(self, deltaT, time):
         self._xpos = (self._xpos + self._xvel * deltaT / 1000.0 * self.speedFrac(time) ) % self._screenWidth
