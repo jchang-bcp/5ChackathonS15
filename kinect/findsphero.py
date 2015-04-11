@@ -93,7 +93,7 @@ def kinect_callback(data):
     D.pub.publish(str(center))
 
     cv2.circle(color_image, center, 5, (255, 0, 0), 2)
-    cv2.imshow('im', image)
+    cv2.imshow('im', color_image)
 
     key_press = cv2.waitKey(5) & 0xff
     if key_press == 27 or key_press == ord('q'):
