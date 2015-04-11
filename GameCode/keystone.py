@@ -10,10 +10,10 @@ class Keystone:
     def xtransform(x, y):
         mathx = x - self._screenWidth/2
         mathy = self._screenHeight - y
-        return self._screenWidth/2 + (x - (x(1-near/far)/self._screenHeight)*mathy)
+        return self._screenWidth/2 + (x - (x*(1-near/far)/self._screenHeight)*mathy)
 
     def ytransform(x, y):
-        return 0
+        mathy = self._screenHeight - y
 
     def makeShape(src):
         """
@@ -25,9 +25,12 @@ class Keystone:
         bl = src.bottomleft
         br = src.bottomright
 
-        newtl = [xtransform(tl[0], tl[1]), tl[1]]
-        newtr = [xtransform(tr[0], tr[1]), tr[1]]
-        newbl = [xtransform(bl[0], bl[1]), bl[1]]
-        newbr = [xtransform(br[0], br[1]), br[1]]
+        newtl = [xtransform(tl[0], tl[1]), ytransform(tl[0], tl[1])]
+        newtr = [xtransform(tr[0], tr[1]), ytransform(tr[0], tr[1])]
+        newbl = [xtransform(bl[0], bl[1]), ytransform(bl[0], bl[1])]
+        newbr = [xtransform(br[0], br[1]), ytransform(br[0], br[1])]
 
         return [newtl, newtr, newbl, newbr]
+
+    def polygon(surface, color, pointlist):
+        pygame.draw.polygon(surface, color, pointlist)
