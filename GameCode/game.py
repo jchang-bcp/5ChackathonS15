@@ -1,17 +1,39 @@
 import pygame, player, bullet, keystone, random
 from pygame.locals import *
 
+use_sphero = True
+
+player_position = (0,0)
+
+if use_sphero:
+    import rospy
+    import std_msgs.msg
+    def spheroPosCallback(data):
+        global player_position
+        player_position = eval(data.data)
+        #player_position[1] = player_position[1]/1.8
+        #player_position = (player_position[0], player_position[1]/1.8)
+        print player_position
+
+
+
 
 
 def main():
     """this function is called when the program starts.
        it initializes everything it needs, then runs in
        a loop until the function returns."""
+    global player_position
+    global ks
     #Initialize Everything
     SCREENWIDTH = 1600
     SCREENHEIGHT = 1200
     WIDTH  = int(SCREENWIDTH)
     HEIGHT = int(SCREENHEIGHT * 1.8)
+
+    if use_sphero:
+        rospy.init_node('sphero_game')
+        rospy.Subscriber('/sphero_coordinates', std_msgs.msg.String, spheroPosCallback)
 
     pygame.init()
     screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
@@ -67,7 +89,9 @@ def main():
                 if event.type == KEYUP:
                     playerObj.colorShift(1)
 
-            playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+            if not use_sphero:
+                player_position = pygame.mouse.get_pos()
+            playerObj.updatePos(player_position[0], player_position[1])
             if random.random() < .09/(len(bulletList)+1) :
                 bulletList += [bullet.Bullet(WIDTH,HEIGHT)]
 
@@ -91,8 +115,8 @@ def main():
                             pygame.display.flip()
                         print "GAME OVER BRAH"
                         print score
-                        pygame.time.delay(3000)
-                        return
+                        #pygame.time.delay(3000)
+                        #return
 
             background.fill((0, 0, 0))
             ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])

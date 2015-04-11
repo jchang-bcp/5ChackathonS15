@@ -23,6 +23,8 @@ D = Data()
 
 pictureCorners = []
 
+D.processingScaleFactor = 5
+
 def kinect_to_cartesian(kinect_pos, calib):
     top_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
     bot_dist = Geometry.distFromPointToLine(kinect_pos, calib.ul, calib.ur)
@@ -46,10 +48,10 @@ def updateCalibration():
                        (largeXs & smallYs).pop(),
                        (largeXs & largeYs).pop()], dtype=np.float32)
 
-    dstPts = np.array([(                0,                  0),
-                       (                0, config.GAME_HEIGHT),
-                       (config.GAME_WIDTH,                  0),
-                       (config.GAME_WIDTH, config.GAME_HEIGHT)], dtype=np.float32)
+    dstPts = np.array([(                0/D.processingScaleFactor,                  0/D.processingScaleFactor),
+                       (                0/D.processingScaleFactor, config.GAME_HEIGHT/D.processingScaleFactor),
+                       (config.GAME_WIDTH/D.processingScaleFactor,                  0/D.processingScaleFactor),
+                       (config.GAME_WIDTH/D.processingScaleFactor, config.GAME_HEIGHT/D.processingScaleFactor)], dtype=np.float32)
 
     #print srcPts, '->', dstPts
 
@@ -65,11 +67,13 @@ def findSphero(img):
 
     thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
 
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    contours = sorted(contours, key = cv2.contourArea)
-    bestContour = contours[-1] if len(contours) > 0 else None
-
-    return centerContour(bestContour) if bestContour.all() else None
+    try:
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours = sorted(contours, key = cv2.contourArea)
+        bestContour = contours[-1] if len(contours) > 0 else None
+        return centerContour(bestContour)
+    except:
+        return None
 
 def xang(x):
     return math.radians(-23.5 + x*57./639)
@@ -186,18 +190,20 @@ def kinect_rgb_callback(data):
     color_image = D.bridge.imgmsg_to_cv2(data, "bgr8")
 
     try:
-        color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH/5,config.GAME_HEIGHT/5))
+        color_image = cv2.warpPerspective(color_image, H, (config.GAME_WIDTH/D.processingScaleFactor,config.GAME_HEIGHT/D.processingScaleFactor))
     except NameError:
-        cv2.imshow('im', color_image)
+        pass
 
     center = findSphero(color_image)
+    pubcenter = (center[0]*D.processingScaleFactor, center[1]*D.processingScaleFactor)
 
     if center:
-        D.pub.publish(str(center))
+        D.pub.publish(str(pubcenter))
     else:
         print 'None'
 
-    #cv2.circle(color_image, center, 5, (255, 0, 0), 2)
+    cv2.circle(color_image, center, 5, (255, 0, 0), 2)
+    cv2.imshow('im', color_image)
 
 
     key_press = cv2.waitKey(5) & 0xff
