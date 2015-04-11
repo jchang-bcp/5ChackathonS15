@@ -33,7 +33,8 @@ class Bullet(pygame.sprite.Sprite):
         return self._vertexList
 
     def speedFrac(self, time):
-        return (time/10000.0)**(1.0/2) + 1
+        return 1
+        #return (time/10000.0)**(1.0/2) + 1
 
     def checkForHit(self, target):
         xdiff = target.getPosition()[0] - self._xpos
