@@ -41,6 +41,6 @@ class Keystone:
         return [ t[0]/t[2], t[1]/t[2] ]
 
     def polygon(self, surface, color, pointlist):
-        transformedPtList = [transformPoint(pt) for pt in pointlist]
+        transformedPtList = [self.transformPoint(pt) for pt in pointlist]
 
         pygame.draw.polygon(surface, color, transformedPtList)
