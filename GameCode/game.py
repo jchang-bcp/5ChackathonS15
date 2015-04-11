@@ -1,4 +1,4 @@
-import pygame, player, bullet
+import pygame, player, bullet, random
 from pygame.locals import *
 
 def main():
@@ -34,12 +34,25 @@ def main():
                 return
 
         playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+        if random.random() < .03/len(bulletList) :
+            bulletList += [bullet.Bullet(WIDTH,HEIGHT)]
 
         for bulletObj in bulletList:
-            bulletObj.updatePos(deltaT)
+            bulletObj.updatePos(deltaT, pygame.time.get_ticks())
             if bulletObj.checkForHit(playerObj):
                 playerObj.collide()
+                if pygame.font:
+                    font = pygame.font.Font(None, 36)
+                    text = font.render("Game Over", 1, (10, 10, 10))
+                    textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/8*7)
+                    background.blit(text, textpos)
+                    text = font.render("self.getRect()", 1, (10, 10, 10))
+                    textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
+                    background.blit(text, textpos)
+                    screen.blit(background, (0, 0))
+                    pygame.display.flip()
                 print "GAME OVER BRAH"
+                pygame.time.delay(3000)
                 return
 
         background.fill((250, 250, 250))
