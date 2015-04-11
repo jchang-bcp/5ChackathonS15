@@ -136,7 +136,8 @@ def main():
                             pygame.display.flip()
                         print "GAME OVER BRAH"
                         print score
-                        #pygame.time.delay(3000)
+                        pygame.time.delay(3000)
+                        waitForCalibration = True
                         #return
 
             background.fill((0, 0, 0))
