@@ -34,6 +34,7 @@ def main():
     clock = pygame.time.Clock()
     playerObj = player.Player(250, 250)
     bulletList = [bullet.Bullet(WIDTH,HEIGHT) for x in range (3)]
+    score = 0
 
     while 1:
         deltaT = clock.tick(60)
@@ -59,6 +60,7 @@ def main():
                 background.blit(text, textpos)
 
         else:
+            
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
@@ -74,6 +76,7 @@ def main():
                 if bulletObj.checkForHit(playerObj):
                     if bulletObj._color == playerObj._color:
                         bulletList.remove(bulletObj)
+                        score += 1
                     else:
                         playerObj.collide()
                         if pygame.font:
@@ -87,6 +90,7 @@ def main():
                             screen.blit(background, (0, 0))
                             pygame.display.flip()
                         print "GAME OVER BRAH"
+                        print score
                         pygame.time.delay(3000)
                         return
 
@@ -96,6 +100,12 @@ def main():
 
             for bulletObj in bulletList:
                 ks.polygon(background, getRGB(bulletObj._color), bulletObj.getVertices())
+
+            #Render Score
+            text = font.render(str(score), 1, (10, 10, 10))
+            textpos = text.get_rect(centerx=background.get_width()/16*15, centery=background.get_height()/16*15)
+            background.blit(text, textpos)
+
         screen.blit(background, (0, 0))
         pygame.display.flip()
 
@@ -103,13 +113,13 @@ def getRGB(color):
     if color == "blue":
         return (0,191,255)
     if color == "green":
-        return (34,139,34)
+        return (50,205,50)
     if color == "red":
         return (178,34,34)
     if color == "purple":
-        return (106,90,205)
+        return (160,32,240)
     if color == "orange":
-        return (250,128,114)
+        return (234,94,29)
 
 #this calls the 'main' function when this script is executed
 if __name__ == '__main__': main()
