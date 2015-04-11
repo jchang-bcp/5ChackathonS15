@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, Width, Height, Radius = 10, numSides = 10):
+    def __init__(self, Width, Height, Radius = 30, numSides = 10):
         pygame.sprite.Sprite.__init__(self)
         self._screenWidth = Width
         self._screenHeight = Height
@@ -11,11 +11,11 @@ class Bullet(pygame.sprite.Sprite):
         self._ypos = random.randint(0, Height)
 
         angle = random.random()*2*np.pi
-        speed = random.randint(70, 100)
+        speed = random.randint(40, 80)
         self._xvel = int(speed * np.cos(angle))
         self._yvel =  int(speed * np.sin(angle))
 
-        self._color = random.choice(["blue", "green", "red", "purple", "orange"])
+        self._color = random.choice(["blue", "green", "yellow", "purple", "orange"])
         self._radius = Radius
         self._numSides = numSides
         self.updateVertices()
@@ -26,8 +26,8 @@ class Bullet(pygame.sprite.Sprite):
         self.updateVertices()
 
     def updateVertices(self):
-        self._vertexList = [[self._xpos + 10*np.cos(i*2*np.pi/self._numSides),
-                             self._ypos + 10*np.sin(i*2*np.pi/self._numSides)] for i in range(0, self._numSides)]
+        self._vertexList = [[self._xpos + self._radius*np.cos(i*2*np.pi/self._numSides),
+                             self._ypos + self._radius*np.sin(i*2*np.pi/self._numSides)] for i in range(0, self._numSides)]
 
     def getVertices(self):
         return self._vertexList

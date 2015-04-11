@@ -1,20 +1,40 @@
 import pygame, player, bullet, keystone, random
 from pygame.locals import *
 
+use_sphero = True
+
+player_position = (0,0)
+playerObj = player.Player(250, 250)
+
+if use_sphero:
+    import rospy
+    import std_msgs.msg
+    def spheroPosCallback(data):
+        global player_position
+        player_position = eval(data.data)
+    def spheroChangeColor(data):
+        playerObj.colorShift(1)
 
 
 def main():
     """this function is called when the program starts.
        it initializes everything it needs, then runs in
        a loop until the function returns."""
+    global player_position
+    global ks
     #Initialize Everything
-    WIDTH = 1024
-    HEIGHT = 768
-    SCREENWIDTH = WIDTH
-    SCREENHEIGHT = HEIGHT * 1.5
+    SCREENWIDTH = 1600
+    SCREENHEIGHT = 1200
+    WIDTH  = int(SCREENWIDTH)
+    HEIGHT = int(SCREENHEIGHT * 1.8)
+
+    if use_sphero:
+        rospy.init_node('sphero_game')
+        rospy.Subscriber('/sphero_coordinates', std_msgs.msg.String, spheroPosCallback)
+        rospy.Subscriber('/sphero_change_color', std_msgs.msg.Bool, spheroChangeColor)
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
     pygame.mouse.set_visible(1)
 
@@ -22,6 +42,8 @@ def main():
 
     calibrationIndex = 0
     calibrationPoints = [(0, 0), (0, 0)]
+
+    waitForCalibration = True
 
     #Create The Backgound
     background = pygame.Surface(screen.get_size())
@@ -32,7 +54,6 @@ def main():
     pygame.display.flip()
 
     clock = pygame.time.Clock()
-    playerObj = player.Player(250, 250)
     bulletList = [bullet.Bullet(WIDTH,HEIGHT) for x in range (3)]
     score = 0
     health = 10
@@ -49,7 +70,6 @@ def main():
                     calibrationIndex += 1
                     if calibrationIndex >= 2:
                         ks.setHomography(calibrationPoints[0], calibrationPoints[1])
-                        pygame.mouse.set_visible(0)
 
             if pygame.font:
                 font = pygame.font.Font(None, 36)
@@ -60,16 +80,38 @@ def main():
                 textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
                 background.blit(text, textpos)
 
+        elif waitForCalibration:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    return
+                if event.type == MOUSEBUTTONDOWN:
+                    waitForCalibration = False
+                    pygame.mouse.set_visible(0)
+
+            background.fill((0, 0, 0))
+            ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])
+
+            if pygame.font:
+                font = pygame.font.Font(None, 36)
+                text = font.render("Waiting for Kinect Calibration", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/8*7)
+                background.blit(text, textpos)
+                text = font.render("Click when Ready", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
+                background.blit(text, textpos)
+
         else:
-            
+
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
                 if event.type == KEYUP:
                     playerObj.colorShift(1)
 
-            playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-            if random.random() < .09/(len(bulletList)+1) :
+            if not use_sphero:
+                player_position = pygame.mouse.get_pos()
+            playerObj.updatePos(player_position[0], player_position[1])
+            if random.random() < .03/(len(bulletList)+1) :
                 bulletList += [bullet.Bullet(WIDTH,HEIGHT)]
 
             for bulletObj in bulletList:
@@ -94,8 +136,8 @@ def main():
                             pygame.display.flip()
                         print "GAME OVER BRAH"
                         print score
-                        pygame.time.delay(3000)
-                        return
+                        #pygame.time.delay(3000)
+                        #return
 
             background.fill((0, 0, 0))
             ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])
@@ -119,8 +161,8 @@ def getRGB(color):
         return (0,191,255)
     if color == "green":
         return (50,205,50)
-    if color == "red":
-        return (178,34,34)
+    if color == "yellow":
+        return (210,210,0)
     if color == "purple":
         return (160,32,240)
     if color == "orange":
