@@ -6,8 +6,8 @@ def main():
        it initializes everything it needs, then runs in
        a loop until the function returns."""
     #Initialize Everything
-    WIDTH = 500
-    HEIGHT = 500
+    WIDTH = 1024
+    HEIGHT = 768
 
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -78,8 +78,8 @@ def main():
                         screen.blit(background, (0, 0))
                         pygame.display.flip()
                     print "GAME OVER BRAH"
-                    pygame.time.delay(3000)
-                    return
+                    #pygame.time.delay(3000)
+                    #return
 
             background.fill((0, 0, 0))
             ks.polygon(background, (250, 250, 250), [[0, 0], [WIDTH, 0], [WIDTH, HEIGHT], [0, HEIGHT]])

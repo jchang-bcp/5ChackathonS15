@@ -11,7 +11,7 @@ class Keystone:
     def setHomography(self, pt1, pt2):
         srcPts = np.array([ (0,self._screenHeight), (self._screenWidth,self._screenHeight),
                             (0,0), (self._screenWidth,0)], dtype=np.float32)
-        dstPts = np.array([ (0,self._screenHeight), (self._screenWidth,self._screenHeight),
+        dstPts = np.array([ (0,self._screenHeight/1.5), (self._screenWidth,self._screenHeight/1.5),
                             min(pt1,pt2), max(pt1,pt2)], dtype=np.float32)
 
         self._transformation, _ = cv2.findHomography(srcPts, dstPts)
