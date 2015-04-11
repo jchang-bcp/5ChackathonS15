@@ -2,7 +2,7 @@
 # aozdemir@hmc.edu
 
 # Vector class
-from math import sqrt
+from math import sqrt, sin, cos, atan2
 from operator import add
 from string import join
 
@@ -30,12 +30,17 @@ class Vector(tuple):
         return self.scale( 1. / self.length)
     def proj(self, other):
         return other.norm().scale(float(self.dot(other)) / other.length)
+    def angle(self):
+        return atan2(self[0], self[1])
     def reject(self, other):
         return self - self.proj(other)
     def __repr__(self):
         return "Vector(%s)" % (self.superclass.__repr__(self))
     def __str__(self):
         return "<" + join([str(x) for x in self],", ") + ">"
+    @staticmethod
+    def from2DPolar(r, angle):
+        return Vector((r * cos(theta), r * sin(angle)))
 
 x = Vector((1, 0))
 x5 = Vector((5, 0))
