@@ -6,13 +6,13 @@ def main():
        it initializes everything it needs, then runs in
        a loop until the function returns."""
     #Initialize Everything
-    WIDTH = 1024
-    HEIGHT = 768
-    SCREENWIDTH = WIDTH
-    SCREENHEIGHT = HEIGHT * 1.5
+    SCREENWIDTH = 1600
+    SCREENHEIGHT = 1200
+    WIDTH  = int(SCREENWIDTH)
+    HEIGHT = int(SCREENHEIGHT * 1.8)
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
     pygame.mouse.set_visible(1)
 
