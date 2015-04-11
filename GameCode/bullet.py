@@ -3,10 +3,10 @@ import pygame
 class Bullet(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self._xpos = 0
+        self._xpos = 500
         self._ypos = 0
-        self._xvel = 20
-        self._yvel = 20
+        self._xvel = -50
+        self._yvel = 50
         self._rect = pygame.Rect(self._xpos, self._ypos, 10, 10)
 
     def updatePos(self, deltaT):
@@ -18,8 +18,8 @@ class Bullet(pygame.sprite.Sprite):
     def getRect(self):
         return self._rect
 
-    def collide(self):
-        print "Ow!"
+    def checkForHit(self, target):
+        return self._rect.colliderect(target.getRect())
 
     def deltaT():
         return 1
