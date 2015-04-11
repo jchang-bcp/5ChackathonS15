@@ -12,9 +12,12 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption('HARVEY MUDD HACKATHON')
-    pygame.mouse.set_visible(0)
+    pygame.mouse.set_visible(1)
 
     ks = keystone.Keystone(WIDTH, HEIGHT)
+
+    calibrationIndex = 0
+    calibrationPoints = [(0, 0), (0, 0)]
 
     #Create The Backgound
     background = pygame.Surface(screen.get_size())
@@ -31,37 +34,58 @@ def main():
     while 1:
         deltaT = clock.tick(60)
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                return
+        if calibrationIndex < 2:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    return
+                elif event.type == MOUSEBUTTONDOWN:
+                    calibrationPoints[calibrationIndex] = (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+                    calibrationIndex += 1
+                    if calibrationIndex >= 2:
+                        ks.setHomography(calibrationPoints[0], calibrationPoints[1])
+                        pygame.mouse.set_visible(0)
 
-        playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-        if random.random() < .03/len(bulletList) :
-            bulletList += [bullet.Bullet(WIDTH,HEIGHT)]
+            if pygame.font:
+                font = pygame.font.Font(None, 36)
+                text = font.render("Calibration", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/8*7)
+                background.blit(text, textpos)
+                text = font.render("Please click on the upper corners of the game field", 1, (10, 10, 10))
+                textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
+                background.blit(text, textpos)
 
-        for bulletObj in bulletList:
-            bulletObj.updatePos(deltaT, pygame.time.get_ticks())
-            if bulletObj.checkForHit(playerObj):
-                playerObj.collide()
-                if pygame.font:
-                    font = pygame.font.Font(None, 36)
-                    text = font.render("Game Over", 1, (10, 10, 10))
-                    textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/8*7)
-                    background.blit(text, textpos)
-                    text = font.render("self.getRect()", 1, (10, 10, 10))
-                    textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
-                    background.blit(text, textpos)
-                    screen.blit(background, (0, 0))
-                    pygame.display.flip()
-                print "GAME OVER BRAH"
-                pygame.time.delay(3000)
-                return
+        else:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    return
 
-        background.fill((250, 250, 250))
-        ks.polygon(background, (250, 0, 0), playerObj.getVertices())
+            playerObj.updatePos(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+            if random.random() < .03/len(bulletList) :
+                bulletList += [bullet.Bullet(WIDTH,HEIGHT)]
 
-        for bulletObj in bulletList:
-            ks.polygon(background, (0, 0, 0), bulletObj.getVertices())
+            for bulletObj in bulletList:
+                bulletObj.updatePos(deltaT, pygame.time.get_ticks())
+                if bulletObj.checkForHit(playerObj):
+                    playerObj.collide()
+                    if pygame.font:
+                        font = pygame.font.Font(None, 36)
+                        text = font.render("Game Over", 1, (10, 10, 10))
+                        textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/8*7)
+                        background.blit(text, textpos)
+                        text = font.render("self.getRect()", 1, (10, 10, 10))
+                        textpos = text.get_rect(centerx=background.get_width()/2, centery=background.get_height()/16*15)
+                        background.blit(text, textpos)
+                        screen.blit(background, (0, 0))
+                        pygame.display.flip()
+                    print "GAME OVER BRAH"
+                    pygame.time.delay(3000)
+                    return
+
+            background.fill((250, 250, 250))
+            ks.polygon(background, (250, 0, 0), playerObj.getVertices())
+
+            for bulletObj in bulletList:
+                ks.polygon(background, (0, 0, 0), bulletObj.getVertices())
         screen.blit(background, (0, 0))
         pygame.display.flip()
 
