@@ -1,8 +1,9 @@
 import pygame
 import random
+import numpy as np
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, Width, Height):
+    def __init__(self, Width, Height, Radius = 10, numSides = 10):
         pygame.sprite.Sprite.__init__(self)
         self._screenWidth = Width
         self._screenHeight = Height
@@ -11,6 +12,8 @@ class Bullet(pygame.sprite.Sprite):
         self._xvel = random.randint(40,50)*random.choice([-1,1])
         self._yvel =  random.randint(40,50)*random.choice([-1,1])
         self._color = random.choice(["blue", "green", "red", "purple", "orange"])
+        self._radius = Radius
+        self._numSides = numSides
         self.updateVertices()
 
     def updatePos(self, deltaT, time):
@@ -19,10 +22,8 @@ class Bullet(pygame.sprite.Sprite):
         self.updateVertices()
 
     def updateVertices(self):
-        self._vertexList = [[self._xpos - 5, self._ypos - 5],
-                            [self._xpos + 5, self._ypos - 5],
-                            [self._xpos + 5, self._ypos + 5],
-                            [self._xpos - 5, self._ypos + 5]]
+        self._vertexList = [[self._xpos + 10*np.cos(i*2*np.pi/self._numSides),
+                             self._ypos + 10*np.sin(i*2*np.pi/self._numSides)] for i in range(0, self._numSides)]
 
     def getVertices(self):
         return self._vertexList
@@ -31,5 +32,6 @@ class Bullet(pygame.sprite.Sprite):
         return (time/10000.0)**(1.0/2) + 1
 
     def checkForHit(self, target):
-        collisionRect = pygame.Rect(self._xpos - 5, self._ypos - 5, 10, 10)
-        return collisionRect.colliderect(target.getCollider())
+        xdiff = target.getPosition()[0] - self._xpos
+        ydiff = target.getPosition()[1] - self._ypos
+        return (np.sqrt(xdiff**2 + ydiff**2) <= self._radius + target.getRadius())
