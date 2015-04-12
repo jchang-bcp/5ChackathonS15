@@ -5,6 +5,7 @@ use_sphero = True
 
 player_position = (0,0)
 playerObj = player.Player(250, 250)
+waitForCalibration = True
 
 if use_sphero:
     import rospy
@@ -13,6 +14,9 @@ if use_sphero:
         global player_position
         player_position = eval(data.data)
     def spheroChangeColor(data):
+        global waitForCalibration
+        if waitForCalibration:
+            waitForCalibration = False
         playerObj.colorShift(1)
 
 
@@ -22,6 +26,7 @@ def main():
        a loop until the function returns."""
     global player_position
     global ks
+    global waitForCalibration
     #Initialize Everything
     SCREENWIDTH = 1600
     SCREENHEIGHT = 1200
@@ -43,7 +48,6 @@ def main():
     calibrationIndex = 0
     calibrationPoints = [(0, 0), (0, 0)]
 
-    waitForCalibration = True
 
     #Create The Backgound
     background = pygame.Surface(screen.get_size())
@@ -120,7 +124,7 @@ def main():
                     bulletList.remove(bulletObj)
                     if bulletObj._color == playerObj._color:
                         score += 1
-                    elif health > 0:
+                    elif health > 1:
                         health -= 1
                     else:
                         playerObj.collide()
@@ -136,6 +140,8 @@ def main():
                             pygame.display.flip()
                         print "GAME OVER BRAH"
                         print score
+                        health = 10
+                        score = 0
                         pygame.time.delay(3000)
                         waitForCalibration = True
                         #return
@@ -147,7 +153,9 @@ def main():
             for bulletObj in bulletList:
                 ks.polygon(background, getRGB(bulletObj._color), bulletObj.getVertices())
 
-            pygame.draw.rect(background, (0, 0, 0), pygame.Rect(10, HEIGHT-20, health*50, 30))
+            #pygame.draw.rect(background, (255, 0, 0), pygame.Rect(10, HEIGHT-50, health*50, 30))
+
+            ks.polygon(background, (255,0,0), [ [10,HEIGHT-50], [10+health*50,HEIGHT-50], [10+health*50, HEIGHT-20], [10, HEIGHT-20]])
 
             #Render Score
             text = font.render(str(score), 10, (10, 10, 10))

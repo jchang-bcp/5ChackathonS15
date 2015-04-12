@@ -3,7 +3,7 @@ import random
 import numpy as np
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, Width, Height, Radius = 30, numSides = 10):
+    def __init__(self, Width, Height, Radius = 50, numSides = 10):
         pygame.sprite.Sprite.__init__(self)
         self._screenWidth = Width
         self._screenHeight = Height

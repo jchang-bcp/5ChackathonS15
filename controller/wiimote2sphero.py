@@ -21,7 +21,7 @@ def wiimote_callback(data):
     #return
 
     deadband = 2
-    tilt2spdfactor = 17 #34
+    tilt2spdfactor = 28 #34
     buttonSpd = 120
 
 
