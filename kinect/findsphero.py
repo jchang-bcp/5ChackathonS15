@@ -16,6 +16,8 @@ import freenect
 sys.path.append('..')
 import config
 
+useCircle = True
+
 class Data:
     pass
 
@@ -69,9 +71,15 @@ def findSphero(img):
 
     try:
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        contours = sorted(contours, key = cv2.contourArea)
-        bestContour = contours[-1] if len(contours) > 0 else None
-        return centerContour(bestContour)
+        if not useCircle:
+            contours = sorted(contours, key = cv2.contourArea)
+            return centerContour(contours[-1])[0]
+        else:
+            contours = filter(lambda x: cv2.contourArea(x) > 10, contours)
+            circles = map(centerContour, contours)
+            circles = sorted(circles, key=(lambda x: -x[1]))
+            best = circles[0]
+            return best[0]
     except:
         return None
 
@@ -181,8 +189,14 @@ def centerContour(contour):
     xc_1 = x_m + uc
     yc_1 = y_m + vc
 
-    #print (int(xc_1), int(yc_1))
-    return (int(xc_1), int(yc_1))
+    #print (int(xc_1), int(yc_1))\
+
+    # Calcul des distances au centre (xc_1, yc_1)
+    Ri_1     = sqrt((x-xc_1)**2 + (y-yc_1)**2)
+    R_1      = mean(Ri_1)
+    residu_1 = sum((Ri_1-R_1)**2)
+
+    return ((int(xc_1), int(yc_1)), residu_1)
 
 # a = a[100:-100, 100:-100]
 
